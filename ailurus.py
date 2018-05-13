@@ -1,3 +1,6 @@
+# My summer project Discord bot
+# By: Justin Vuu "jevuu"
+
 import discord
 from discord.ext import commands
 from discord.ext.commands import Bot
@@ -61,9 +64,9 @@ async def pick(ctx, *choices:str):
     if len(choiceList) <= 1:
         embed = discord.Embed(title = title + name, description = "You need to give me more than once choice!", thumbnail = ctx.message.author.avatar_url)
     else:
-        embed = discord.Embed(title = title + name, description = choiceList[randint(0,len(choiceList)-1)])
+        embed = discord.Embed(title = title + name, description = choiceList[randint(0,len(choiceList)-1)], thumbnail = ctx.message.author.avatar_url)
     await bot.say(embed = embed)
 
  
 
-bot.run("MzU0NDY0MTY4NzAwNTQyOTg2.DddPGQ.R7roB4MOsYmazhMomNw4u8UswJ4")
+bot.run("add key here")
