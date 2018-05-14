@@ -1,5 +1,4 @@
 
 .vscode/settings.json
-*.json
-*.json
-*.json
+Config/config.json
+InfSkies/Pilots/*.json
