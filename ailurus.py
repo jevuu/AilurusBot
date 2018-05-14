@@ -5,10 +5,13 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Bot
 from random import randint
+import json
+import io
 import asyncio
 
 Client = discord.Client()
 bot = commands.Bot(command_prefix = '.')
+pilots = []
 
 @bot.event
 async def on_ready():
@@ -67,6 +70,55 @@ async def pick(ctx, *choices:str):
         embed = discord.Embed(title = title + name, description = choiceList[randint(0,len(choiceList)-1)], thumbnail = ctx.message.author.avatar_url)
     await bot.say(embed = embed)
 
- 
 
-bot.run("add key here")
+#GAME STUFF
+
+@bot.command(pass_context = True)
+async def playInf(ctx):
+    title:str = "Infinite Skies registration for "
+    name:str
+    if ctx.message.author.nick == None:
+        name = ctx.message.author.name
+    else:
+        name = ctx.message.author.nick
+
+    pilotFound:bool = False
+    for p in pilots:
+        if p.userID == ctx.message.author.id:
+            pilotFound = True
+            break
+    
+    if pilotFound == False:
+        newPilot = pilot(ctx.message.author.id)
+        pilots.append(newPilot)
+        fileName:str = ctx.message.author.id + ".json"
+        with open(fileName, 'w') as output:
+            json.dump(newPilot.__dict__, output)
+        embed = discord.Embed(title = title + name, description = "Success! Welcome to the skies!")
+    else:
+        embed = discord.Embed(title = title + name, description = "You're already a pilot!")
+    
+    await bot.say(embed = embed)
+
+@bot.command(pass_context = True)
+async def modMoney(ctx, b:int):
+    p = pilot("test")
+    p.modMoney(b)
+
+    await bot.say(p.money)
+    
+class pilot:
+
+    def __init__(self, uid:str):
+        self.userID:str = uid
+        self.money:int = 10000
+        self.activePlane:int = 0
+        self.sortiesFlown:int = 0
+    
+    def modMoney(self, m:int):
+        self.money += m
+
+with open("config.json", 'r') as loadConfig:
+    config = json.loads(loadConfig)
+
+bot.run(config['key'])
