@@ -1,0 +1,1 @@
+{"planeID": "MIG31", "name": "MiG-31", "role": "Fighter", "desc": "Designed to intercept high speed threats, it can use its speed to get out of danger quickly.", "perkID": "SANIC", "manoeuvrability": 100, "defense": 40, "stealth": 0, "gunAmmo": 0, "mslAmmo": 20, "sp1": "AAML", "sp1Ammo": 10, "sp2": "AAM4", "sp2Ammo": 10, "cost": "7000"}

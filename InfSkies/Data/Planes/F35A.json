@@ -1,0 +1,1 @@
+{"planeID": "F35A", "name": "F-35A Lightning II", "role": "Multirole", "desc": "Advanced stealth aircraft designed to work in tandem with allied units", "perkID": "JSTRIKE", "manoeuvrability": 70, "defense": 60, "stealth": 2, "gunAmmo": 400, "mslAmmo": 20, "sp1": "AAML", "sp1Ammo": 10, "sp2": "GPBS", "sp2Ammo": 10, "cost": "10000"}

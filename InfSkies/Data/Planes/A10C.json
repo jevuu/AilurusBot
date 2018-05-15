@@ -1,0 +1,1 @@
+{"planeID": "A10C", "name": "A-10C Thunderbolt II", "role": "Attacker", "desc": "The world's only gun with a plane accessory. The 30mm gun shreds ground targets with ease.", "perkID": "30MM", "manoeuvrability": 20, "defense": 90, "stealth": 0, "gunAmmo": 1000, "mslAmmo": 20, "sp1": "RKTL", "sp1Ammo": 10, "sp2": "UGBL", "sp2Ammo": 10, "cost": "7000"}

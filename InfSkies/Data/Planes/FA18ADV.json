@@ -1,0 +1,1 @@
+{"planeID": "FA18ADV", "name": "Advanced Super Hornet", "role": "Multirole", "desc": "An experimental multirole fighter with CFTs and stealth", "perkID": "VERS", "manoeuvrability": 50, "defense": 50, "stealth": 1, "gunAmmo": 560, "mslAmmo": 20, "sp1": "AAM4", "sp1Ammo": 10, "sp2": "AGML", "sp2Ammo": 10, "cost": "5000"}

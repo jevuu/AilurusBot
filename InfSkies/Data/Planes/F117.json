@@ -1,0 +1,1 @@
+{"planeID": "F117", "name": "F-117A", "role": "Attacker", "desc": "Stealth attacker used for precision strikes in enemy territory.", "perkID": "NIGHT", "manoeuvrability": 20, "defense": 70, "stealth": 3, "gunAmmo": 0, "mslAmmo": 20, "sp1": "GPBL", "sp1Ammo": 10, "sp2": "AGML", "sp2Ammo": 10, "cost": "6000"}
