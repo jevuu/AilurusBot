@@ -1,0 +1,1 @@
+Edit "xconfig.json" to include your bot's token, then rename the file to "config.txt"
