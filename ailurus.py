@@ -77,6 +77,22 @@ for filename in os.listdir(iSPilotsPath):
     p = pilot(lp["userID"],lp["money"],lp["activePlane"],lp["sortiesFlown"],lp["experience"])
     pilots.append(p)
 
+#=================
+#General functions
+#=================
+
+def getName(author):
+    authorName:str      #Get message author's name or nick
+    if author.nick == None:
+        authorName = author.name
+    else:
+        authorName = author.nick
+    return authorName
+
+#==================================
+#Bot commands and event start below
+#==================================
+
 async def bg_task_savePilots():
     await bot.wait_until_ready()
     while not bot.is_closed:
@@ -130,11 +146,7 @@ async def pick(ctx, *choices:str):
         else:
             c += 1
 
-    name:str
-    if ctx.message.author.nick == None:
-        name = ctx.message.author.name
-    else:
-        name = ctx.message.author.nick
+    name:str = getName(ctx.message.author)
 
     title:str = "Choosing for "
     
@@ -144,7 +156,9 @@ async def pick(ctx, *choices:str):
         embed = discord.Embed(title = title + name, description = choiceList[randint(0,len(choiceList)-1)], thumbnail = ctx.message.author.avatar_url)
     await bot.say(embed = embed)
 
+#======================
 # ROOM MANAGEMENT STUFF
+#======================
 
 ## Defining a room
 class room:
@@ -172,6 +186,15 @@ async def makeroom(ctx, *msg:str):
     newRoom.members.append(ctx.message.author.id)
     rooms.append(newRoom)
 
+    #authorName:str      #Get message author's name or nick
+    #if ctx.message.author.nick == None:
+    #    authorName = ctx.message.author.name
+    #else:
+    #    authorName = ctx.message.author.nick
+
+    authorName:str = getName(ctx.message.author)
+
+    await bot.send_message(ctx.message.channel, "Your room has been created, {}!".format(authorName))
     embed = discord.Embed(title = "Room Details")
     embed.add_field(name = "Name", value = newRoom.name, inline = False)
     embed.add_field(name = "Game", value = newRoom.game)
@@ -201,11 +224,7 @@ async def makeroom(ctx, *msg:str):
 #Closing a room
 @bot.command(pass_context = True)
 async def closeroom(ctx):
-    name:str
-    if ctx.message.author.nick == None:
-        name = ctx.message.author.name
-    else:
-        name = ctx.message.author.nick
+    authorName:str = getName(ctx.message.author)
 
     if len(ctx.message.mentions) >= 1:
         if ctx.message.author.server_permissions.administrator is True or ctx.message.author.server_permissions.manage_server is True:
@@ -225,20 +244,16 @@ async def closeroom(ctx):
                 break
 
         if roomFound is True:
-            await bot.send_message(ctx.message.channel, "The room has been closed, {}".format(name))
+            await bot.send_message(ctx.message.channel, "The room has been closed, {}".format(authorName))
         else:
-            await bot.send_message(ctx.message.channel, "You don't have a room, {}".format(name))         
+            await bot.send_message(ctx.message.channel, "You don't have a room, {}".format(authorName))         
     else:
-        await bot.send_message(ctx.message.channel, "You do not have permission to close other's rooms, {}".format(name))
+        await bot.send_message(ctx.message.channel, "You do not have permission to close other's rooms, {}".format(authorName))
 
 #Joining rooms
 @bot.command(pass_context = True)
 async def joinroom(ctx):
-    name:str
-    if ctx.message.author.nick == None:
-        name = ctx.message.author.name
-    else:
-        name = ctx.message.author.nick
+    authorName:str = getName(ctx.message.author)
     
     if len(ctx.message.mentions) >= 1:
         findOwner = ctx.message.mentions[0].id
@@ -286,23 +301,19 @@ async def joinroom(ctx):
                     embed.add_field(name = "Members", value = embedMembers, inline = False)
                     await bot.say(embed = embed)
                 else:
-                    await bot.send_message(ctx.message.channel, "You are already in the room, {}".format(name))
+                    await bot.send_message(ctx.message.channel, "You are already in the room, {}".format(authorName))
 
                 break
         
         if roomFound is False:
-            await bot.send_message(ctx.message.channel, "No room found, {}".format(name))
+            await bot.send_message(ctx.message.channel, "No room found, {}".format(authorName))
     else:
-        await bot.send_message(ctx.message.channel, "You need to mention the room's host to join them, {}".format(name))
+        await bot.send_message(ctx.message.channel, "You need to mention the room's host to join them, {}".format(authorName))
 
 #Kick from room
 @bot.command(pass_context = True)
 async def roomkick(ctx):
-    authorName:str      #Get message author's name or nick
-    if ctx.message.author.nick == None:
-        authorName = ctx.message.author.name
-    else:
-        authorName = ctx.message.author.nick
+    authorName:str = getName(ctx.message.author)
     
     authorID:str = ctx.message.author.id
 
@@ -330,6 +341,7 @@ async def roomkick(ctx):
                 
                 if memberFound is True:
                     del r.members[mbrIndex]
+                    await bot.send_message(ctx.message.channel, "The member has been removed, {}".format(authorName))
                     embed = discord.Embed(title = "Room Details")
                     embed.add_field(name = "Name", value = r.name, inline = False)
                     embed.add_field(name = "Game", value = r.game)
@@ -368,11 +380,7 @@ async def roomkick(ctx):
 ### VIEWING ROOMS
 @bot.command(pass_context = True)
 async def viewroom(ctx):
-    name:str
-    if ctx.message.author.nick == None:
-        name = ctx.message.author.name
-    else:
-        name = ctx.message.author.nick
+    authorName:str = getName(ctx.message.author)
 
     if len(ctx.message.mentions) is 0:
         findOwner = ctx.message.author.id
@@ -411,7 +419,7 @@ async def viewroom(ctx):
             break
     
     if roomFound is False:
-        await bot.send_message(ctx.message.channel, "No room found, {}".format(name))
+        await bot.send_message(ctx.message.channel, "No room found, {}".format(authorName))
 
 
 #GAME STUFF
