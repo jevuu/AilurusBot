@@ -157,7 +157,7 @@ class room:
         else:
             self.members = members
 
-rooms = []
+rooms = []      #A list of room objects
 
 ## ROOM COMMANDS
 
@@ -220,7 +220,6 @@ async def closeroom(ctx):
 
         for r in rooms:
             if r.owner is findOwner:
-                #roomIndex = rooms.index(r)
                 del rooms[rooms.index(r)]
                 roomFound = True
                 break
@@ -299,33 +298,38 @@ async def joinroom(ctx):
 #Kick from room
 @bot.command(pass_context = True)
 async def roomkick(ctx):
-    name:str
+    authorName:str      #Get message author's name or nick
     if ctx.message.author.nick == None:
-        name = ctx.message.author.name
+        authorName = ctx.message.author.name
     else:
-        name = ctx.message.author.nick
+        authorName = ctx.message.author.nick
     
+    authorID:str = ctx.message.author.id
+
+    findMember:str      #Get the ID of the mentioned member we want to kick
     if len(ctx.message.mentions) >= 1:
         findMember = ctx.message.mentions[0].id
     else:
         findMember = None
 
+    #If the member is found, search through rooms list for the author's room, then remove the
+    #member we want to kick.
     if findMember is not None:
         roomFound:bool = False
 
         for r in rooms:
-            if r.owner is ctx.message.author.id:
+            if r.owner is authorID:
                 roomFound = True
                 memberFound:bool = False
 
                 for rM in r.members:
                     if rM is findMember:
-                        roomIndex = r.members.index(rM)
+                        mbrIndex = r.members.index(rM)
                         memberFound = True
                         break
                 
                 if memberFound is True:
-                    del r.members[roomIndex]
+                    del r.members[mbrIndex]
                     embed = discord.Embed(title = "Room Details")
                     embed.add_field(name = "Name", value = r.name, inline = False)
                     embed.add_field(name = "Game", value = r.game)
@@ -352,14 +356,14 @@ async def roomkick(ctx):
                     embed.add_field(name = "Members", value = embedMembers, inline = False)
                     await bot.say(embed = embed)
                 else:
-                    await bot.send_message(ctx.message.channel, "User is not in your room, {}".format(name))
+                    await bot.send_message(ctx.message.channel, "User is not in your room, {}".format(authorName))
 
                 break
         
         if roomFound is False:
-            await bot.send_message(ctx.message.channel, "You don't have a room, {}".format(name)) 
+            await bot.send_message(ctx.message.channel, "You don't have a room, {}".format(authorName)) 
     else:
-        await bot.send_message(ctx.message.channel, "You need to mention the member to kick them, {}".format(name))
+        await bot.send_message(ctx.message.channel, "You need to mention the member to kick them, {}".format(authorName))
 
 ### VIEWING ROOMS
 @bot.command(pass_context = True)
