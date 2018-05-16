@@ -144,6 +144,271 @@ async def pick(ctx, *choices:str):
         embed = discord.Embed(title = title + name, description = choiceList[randint(0,len(choiceList)-1)], thumbnail = ctx.message.author.avatar_url)
     await bot.say(embed = embed)
 
+# ROOM MANAGEMENT STUFF
+
+## Defining a room
+class room:
+    def __init__(self, name:str, game:str, owner:str, members:str = None):
+        self.name:str = name
+        self.game:str = game
+        self.owner:str = owner
+        if members is None:
+            self.members = []
+        else:
+            self.members = members
+
+rooms = []
+
+## ROOM COMMANDS
+
+### MANAGING ROOMS
+
+#Creating a room
+@bot.command(pass_context = True)
+async def makeroom(ctx, *msg:str):
+    msgString = " ".join(msg)
+    msgList = msgString.split(', ')
+    newRoom = room(msgList[1], msgList[0], ctx.message.author.id)
+    newRoom.members.append(ctx.message.author.id)
+    rooms.append(newRoom)
+
+    embed = discord.Embed(title = "Room Details")
+    embed.add_field(name = "Name", value = newRoom.name, inline = False)
+    embed.add_field(name = "Game", value = newRoom.game)
+    for m in ctx.message.server.members:
+        if m.id is newRoom.owner:
+            roomOwner:str
+            if m.nick == None:
+                roomOwner = m.name
+            else:
+                roomOwner = m.nick
+    embed.add_field(name = "Host", value = roomOwner)
+    memnum:int = 0
+    embedMembers:str = ""
+    for rM in newRoom.members:
+        memnum += 1
+        for m in ctx.message.server.members:
+            if m.id is rM:
+                roomMember:str
+                if m.nick == None:
+                    roomMember = m.name
+                else:
+                    roomMember = m.nick
+        embedMembers += "{}:\t{} \n".format(memnum, roomMember)
+    embed.add_field(name = "Members", value = embedMembers, inline = False)
+    await bot.say(embed = embed)
+
+#Closing a room
+@bot.command(pass_context = True)
+async def closeroom(ctx):
+    name:str
+    if ctx.message.author.nick == None:
+        name = ctx.message.author.name
+    else:
+        name = ctx.message.author.nick
+
+    if len(ctx.message.mentions) >= 1:
+        if ctx.message.author.server_permissions.administrator is True or ctx.message.author.server_permissions.manage_server is True:
+            findOwner = ctx.message.mentions[0].id
+        else:
+            findOwner = None
+    else:
+        findOwner = ctx.message.author.id
+
+    if findOwner is not None:
+        roomFound:bool = False
+
+        for r in rooms:
+            if r.owner is findOwner:
+                #roomIndex = rooms.index(r)
+                del rooms[rooms.index(r)]
+                roomFound = True
+                break
+
+        if roomFound is True:
+            await bot.send_message(ctx.message.channel, "The room has been closed, {}".format(name))
+        else:
+            await bot.send_message(ctx.message.channel, "You don't have a room, {}".format(name))         
+    else:
+        await bot.send_message(ctx.message.channel, "You do not have permission to close other's rooms, {}".format(name))
+
+#Joining rooms
+@bot.command(pass_context = True)
+async def joinroom(ctx):
+    name:str
+    if ctx.message.author.nick == None:
+        name = ctx.message.author.name
+    else:
+        name = ctx.message.author.nick
+    
+    if len(ctx.message.mentions) >= 1:
+        findOwner = ctx.message.mentions[0].id
+    else:
+        findOwner = None
+
+    if findOwner is not None:
+        roomFound:bool = False
+
+        for r in rooms:
+            if r.owner is findOwner:
+                roomFound = True
+                alreadyInRoom:bool = False
+
+                for rM in r.members:
+                    if rM is ctx.message.author.id:
+                        alreadyInRoom = True
+                        break
+                
+                if alreadyInRoom is False:
+                    r.members.append(ctx.message.author.id)
+                    embed = discord.Embed(title = "Room Details")
+                    embed.add_field(name = "Name", value = r.name, inline = False)
+                    embed.add_field(name = "Game", value = r.game)
+                    for m in ctx.message.server.members:
+                        if m.id is r.owner:
+                            roomOwner:str
+                            if m.nick == None:
+                                roomOwner = m.name
+                            else:
+                                roomOwner = m.nick
+                    embed.add_field(name = "Host", value = roomOwner)
+                    memnum:int = 0
+                    embedMembers:str = ""
+                    for rM in r.members:
+                        memnum += 1
+                        for m in ctx.message.server.members:
+                            if m.id is rM:
+                                roomMember:str
+                                if m.nick == None:
+                                    roomMember = m.name
+                                else:
+                                    roomMember = m.nick
+                        embedMembers += "{}:\t{} \n".format(memnum, roomMember)
+                    embed.add_field(name = "Members", value = embedMembers, inline = False)
+                    await bot.say(embed = embed)
+                else:
+                    await bot.send_message(ctx.message.channel, "You are already in the room, {}".format(name))
+
+                break
+        
+        if roomFound is False:
+            await bot.send_message(ctx.message.channel, "No room found, {}".format(name))
+    else:
+        await bot.send_message(ctx.message.channel, "You need to mention the room's host to join them, {}".format(name))
+
+#Kick from room
+@bot.command(pass_context = True)
+async def roomkick(ctx):
+    name:str
+    if ctx.message.author.nick == None:
+        name = ctx.message.author.name
+    else:
+        name = ctx.message.author.nick
+    
+    if len(ctx.message.mentions) >= 1:
+        findMember = ctx.message.mentions[0].id
+    else:
+        findMember = None
+
+    if findMember is not None:
+        roomFound:bool = False
+
+        for r in rooms:
+            if r.owner is ctx.message.author.id:
+                roomFound = True
+                memberFound:bool = False
+
+                for rM in r.members:
+                    if rM is findMember:
+                        roomIndex = r.members.index(rM)
+                        memberFound = True
+                        break
+                
+                if memberFound is True:
+                    del r.members[roomIndex]
+                    embed = discord.Embed(title = "Room Details")
+                    embed.add_field(name = "Name", value = r.name, inline = False)
+                    embed.add_field(name = "Game", value = r.game)
+                    for m in ctx.message.server.members:
+                        if m.id is r.owner:
+                            roomOwner:str
+                            if m.nick == None:
+                                roomOwner = m.name
+                            else:
+                                roomOwner = m.nick
+                    embed.add_field(name = "Host", value = roomOwner)
+                    memnum:int = 0
+                    embedMembers:str = ""
+                    for rM in r.members:
+                        memnum += 1
+                        for m in ctx.message.server.members:
+                            if m.id is rM:
+                                roomMember:str
+                                if m.nick == None:
+                                    roomMember = m.name
+                                else:
+                                    roomMember = m.nick
+                        embedMembers += "{}:\t{} \n".format(memnum, roomMember)
+                    embed.add_field(name = "Members", value = embedMembers, inline = False)
+                    await bot.say(embed = embed)
+                else:
+                    await bot.send_message(ctx.message.channel, "User is not in your room, {}".format(name))
+
+                break
+        
+        if roomFound is False:
+            await bot.send_message(ctx.message.channel, "You don't have a room, {}".format(name)) 
+    else:
+        await bot.send_message(ctx.message.channel, "You need to mention the member to kick them, {}".format(name))
+
+### VIEWING ROOMS
+@bot.command(pass_context = True)
+async def viewroom(ctx):
+    name:str
+    if ctx.message.author.nick == None:
+        name = ctx.message.author.name
+    else:
+        name = ctx.message.author.nick
+
+    if len(ctx.message.mentions) is 0:
+        findOwner = ctx.message.author.id
+    else:
+        findOwner = ctx.message.mentions[0].id
+
+    roomFound:bool = False
+    for r in rooms:
+        if r.owner is findOwner:
+            embed = discord.Embed(title = "Room Details")
+            embed.add_field(name = "Name", value = r.name, inline = False)
+            embed.add_field(name = "Game", value = r.game)
+            for m in ctx.message.server.members:
+                if m.id is r.owner:
+                    roomOwner:str
+                    if m.nick == None:
+                        roomOwner = m.name
+                    else:
+                        roomOwner = m.nick
+            embed.add_field(name = "Host", value = roomOwner)
+            memnum:int = 0
+            embedMembers:str = ""
+            for rM in r.members:
+                memnum += 1
+                for m in ctx.message.server.members:
+                    if m.id is rM:
+                        roomMember:str
+                        if m.nick == None:
+                            roomMember = m.name
+                        else:
+                            roomMember = m.nick
+                embedMembers += "{}:\t{} \n".format(memnum, roomMember)
+            embed.add_field(name = "Members", value = embedMembers, inline = False)
+            roomFound = True
+            await bot.say(embed = embed)
+            break
+    
+    if roomFound is False:
+        await bot.send_message(ctx.message.channel, "No room found, {}".format(name))
+
 
 #GAME STUFF
 
